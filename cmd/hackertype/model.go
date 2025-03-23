@@ -1,13 +1,29 @@
 package main
 
 import (
+	"math/rand"
+	"os"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type Model struct{}
+type Model struct {
+	hacker_code string
+	current_pos int
+}
 
-func (Model) View() string {
-	return "Hello world"
+func NewModel() Model {
+	m := Model{}
+	hacker_code, err := os.ReadFile("hacker_codes/main.c")
+	if err != nil {
+		panic(err)
+	}
+	m.hacker_code = string(hacker_code)
+	return m
+}
+
+func (m Model) View() string {
+	return m.hacker_code[:m.current_pos]
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -17,10 +33,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyCtrlC:
 			return m, tea.Quit
 		}
+		m.current_pos += rand.Intn(5)
 	}
 	return m, nil
 }
 
-func (Model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return nil
 }

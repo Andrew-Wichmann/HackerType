@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	program := tea.NewProgram(Model{}, tea.WithAltScreen())
+	program := tea.NewProgram(NewModel(), tea.WithAltScreen())
 	_, err := program.Run()
 	if err != nil {
 		panic(err)
