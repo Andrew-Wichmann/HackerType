@@ -5,8 +5,13 @@ import (
 )
 
 func main() {
+	f, err := tea.LogToFile("bubbletea.log", "program")
+	defer f.Close()
+	if err != nil {
+		panic(err)
+	}
 	program := tea.NewProgram(NewModel(), tea.WithAltScreen())
-	_, err := program.Run()
+	_, err = program.Run()
 	if err != nil {
 		panic(err)
 	}
