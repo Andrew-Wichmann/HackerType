@@ -6,17 +6,19 @@ import (
 )
 
 type Model struct {
-	hackerTextArea HackerTextArea
+	hackerTextArea  HackerTextArea
+	hackerDashboard HackerDashboard
 }
 
 func NewModel() Model {
 	hackerTextArea := NewHackerTextArea()
-	m := Model{hackerTextArea: hackerTextArea}
+	hackerDashboard := NewHackerDashboard()
+	m := Model{hackerTextArea: hackerTextArea, hackerDashboard: hackerDashboard}
 	return m
 }
 
 func (m Model) View() string {
-	return lipgloss.JoinHorizontal(lipgloss.Top, m.hackerTextArea.View(), "Hacking in progress")
+	return lipgloss.JoinHorizontal(lipgloss.Top, m.hackerTextArea.View(), m.hackerDashboard.View())
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
