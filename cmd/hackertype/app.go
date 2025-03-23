@@ -29,11 +29,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	}
-	hackerTextArea, cmd := m.hackerTextArea.Update(msg)
+	hackerTextArea, cmd1 := m.hackerTextArea.Update(msg)
 	m.hackerTextArea = hackerTextArea
-	return m, cmd
+	hackerDashboard, cmd2 := m.hackerDashboard.Update(msg)
+	m.hackerDashboard = hackerDashboard
+	return m, tea.Batch(cmd1, cmd2)
 }
 
 func (m Model) Init() tea.Cmd {
-	return nil
+	return m.hackerDashboard.Init()
 }

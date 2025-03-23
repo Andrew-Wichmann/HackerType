@@ -1,21 +1,31 @@
 package main
 
 import (
+	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type HackerDashboard struct {
-	status string
+	status  string
+	spinner spinner.Model
 }
 
 func NewHackerDashboard() HackerDashboard {
-	return HackerDashboard{status: "Hacking in progress..."}
+	spinner := spinner.New(spinner.WithSpinner(spinner.Globe))
+	return HackerDashboard{status: "Hacking in progress...", spinner: spinner}
 }
 
 func (hd HackerDashboard) Update(msg tea.Msg) (HackerDashboard, tea.Cmd) {
-	return HackerDashboard{}, nil
+	spinner, cmd := hd.spinner.Update(msg)
+	hd.spinner = spinner
+	return hd, cmd
 }
 
 func (hd HackerDashboard) View() string {
-	return hd.status
+	return lipgloss.JoinHorizontal(lipgloss.Top, hd.spinner.View(), hd.status)
+}
+
+func (hd HackerDashboard) Init() tea.Cmd {
+	return hd.spinner.Tick
 }
