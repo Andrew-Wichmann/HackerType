@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 
@@ -14,7 +15,12 @@ type Model struct {
 
 func NewModel() Model {
 	m := Model{}
-	hacker_code, err := os.ReadFile("hacker_codes/main.c")
+	files, err := os.ReadDir("hacker_codes/")
+	if err != nil {
+		panic(err)
+	}
+	file := files[rand.Intn(len(files))]
+	hacker_code, err := os.ReadFile(fmt.Sprintf("hacker_codes/%s", file.Name()))
 	if err != nil {
 		panic(err)
 	}
