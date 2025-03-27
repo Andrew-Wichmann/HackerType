@@ -1,20 +1,16 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	"github.com/charmbracelet/bubbles/progress"
-	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 type HackerDashboard struct {
-	status       string
-	worldSpinner spinner.Model
-	ellipsis     spinner.Model
-	progressbar  progress.Model
+	hackProgress progress.Model
+	hackStatus   HackStatus
 	loadPercent  float64
 }
 
@@ -25,55 +21,50 @@ func progressCmd() tea.Cmd {
 }
 
 func NewHackerDashboard() HackerDashboard {
-	worldSpinner := spinner.New(spinner.WithSpinner(spinner.Globe))
-	ellipsis := spinner.New(spinner.WithSpinner(spinner.Ellipsis))
 	progress := progress.New()
+	hackStatus := NewHackStatus()
 	return HackerDashboard{
-		status:       "Hacking in progress",
-		worldSpinner: worldSpinner,
-		ellipsis:     ellipsis,
-		progressbar:  progress,
+		hackStatus:   hackStatus,
+		hackProgress: progress,
 	}
 }
 
+type HackFinished struct{}
+
+func finishHack() tea.Msg {
+	return HackFinished{}
+}
+
 func (hd HackerDashboard) Update(msg tea.Msg) (HackerDashboard, tea.Cmd) {
-	log.Printf("Update %#v\n", msg)
-	cmds := []tea.Cmd{}
-	worldSpinner, cmd := hd.worldSpinner.Update(msg)
-	if cmd != nil {
-		cmds = append(cmds, cmd)
-	}
-	hd.worldSpinner = worldSpinner
-	ellipsis, cmd := hd.ellipsis.Update(msg)
-	if cmd != nil {
-		cmds = append(cmds, cmd)
-	}
-	hd.ellipsis = ellipsis
+	var cmds []tea.Cmd
 	switch msg.(type) {
 	case progressTick:
 		hd.loadPercent += 0.01
 		if hd.loadPercent >= 1 {
 			hd.loadPercent = 0
+			cmds = append(cmds, finishHack)
 		}
-		cmd := hd.progressbar.SetPercent(hd.loadPercent)
+		cmd := hd.hackProgress.SetPercent(hd.loadPercent)
 		cmds = append(cmds, cmd, progressCmd())
 	case progress.FrameMsg:
-		progressbar, cmd := hd.progressbar.Update(msg)
+		progressbar, cmd := hd.hackProgress.Update(msg)
 		if cmd != nil {
 			cmds = append(cmds, cmd)
 		}
-		hd.progressbar = progressbar.(progress.Model)
+		hd.hackProgress = progressbar.(progress.Model)
 	case tea.KeyMsg:
-		hd.loadPercent += 0.001
-
+		hd.loadPercent += 0.004
 	}
+	hs, cmd := hd.hackStatus.Update(msg)
+	hd.hackStatus = hs
+	cmds = append(cmds, cmd)
 	return hd, tea.Batch(cmds...)
 }
 
 func (hd HackerDashboard) View() string {
-	return lipgloss.JoinVertical(lipgloss.Left, lipgloss.JoinHorizontal(lipgloss.Top, hd.worldSpinner.View(), hd.status, hd.ellipsis.View()), hd.progressbar.View())
+	return lipgloss.JoinVertical(lipgloss.Left, hd.hackStatus.View(), hd.hackProgress.View())
 }
 
 func (hd HackerDashboard) Init() tea.Cmd {
-	return tea.Batch(hd.worldSpinner.Tick, hd.ellipsis.Tick, hd.progressbar.Init(), progressCmd())
+	return tea.Batch(hd.hackProgress.Init(), hd.hackStatus.Init(), progressCmd())
 }
