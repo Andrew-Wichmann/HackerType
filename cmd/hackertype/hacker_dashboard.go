@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -12,14 +10,8 @@ type HackerDashboard struct {
 	hackStatus   HackStatus
 }
 
-type progressTick struct{}
-
-func progressCmd() tea.Cmd {
-	return tea.Tick(time.Second*1, func(time.Time) tea.Msg { return progressTick{} })
-}
-
 func NewHackerDashboard() HackerDashboard {
-	progress := NewHackProgress(HackSpeed(1))
+	progress := NewHackProgress(HackSpeed(20))
 	hackStatus := NewHackStatus()
 	return HackerDashboard{
 		hackStatus:   hackStatus,
@@ -49,5 +41,5 @@ func (hd HackerDashboard) View() string {
 }
 
 func (hd HackerDashboard) Init() tea.Cmd {
-	return tea.Batch(hd.hackProgress.Init(), hd.hackStatus.Init(), progressCmd())
+	return tea.Batch(hd.hackProgress.Init(), hd.hackStatus.Init(), idleProgress())
 }
