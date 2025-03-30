@@ -51,6 +51,8 @@ func (hp HackProgress) Update(msg tea.Msg) (HackProgress, tea.Cmd) {
 		hp.keystrokeProgress = keystrokeProgress.(progress.Model)
 	case tea.KeyMsg:
 		hp.keystrokePercent += 0.001 * float64(hp.hackSpeed)
+		cmd := hp.keystrokeProgress.SetPercent(hp.keystrokePercent)
+		cmds = append(cmds, cmd)
 	}
 	if hp.keystrokePercent >= 1 {
 		hp.keystrokePercent = 0
