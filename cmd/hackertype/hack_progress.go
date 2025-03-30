@@ -55,16 +55,16 @@ func (hp HackProgress) Update(msg tea.Msg) (HackProgress, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	}
 	if hp.keystrokePercent >= 1 {
-		hp.keystrokePercent = 0
-		hp.mainPercent += 0.2 * rand.Float64()
+		hp.mainPercent += 0.7 * rand.Float64()
 		cmd := hp.mainProgress.SetPercent(hp.mainPercent)
 		cmds = append(cmds, cmd)
+		hp.keystrokePercent = 0
 		cmd = hp.keystrokeProgress.SetPercent(hp.keystrokePercent)
 		cmds = append(cmds, cmd)
-		if hp.mainPercent >= 1 {
-			hp.mainPercent = 0
-			cmds = append(cmds, finishHack)
-		}
+	}
+	if hp.mainPercent >= 1 {
+		hp.mainPercent = 0
+		cmds = append(cmds, finishHack)
 	}
 	return hp, tea.Batch(cmds...)
 }
